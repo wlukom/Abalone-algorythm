@@ -11,62 +11,126 @@ class Movement{
 
         list<Field*> board;
 
-        Field* from_field = NULL;
+        Field* from_field;
+        int player = 0;
+        int marblesDifference;
         int direction;
         int myMarblesPushed;
         int rate; // -2 1 0 1 2
 
-        Movement* prev;
-        Movement* next;
-
         Movement(){};
-        Movement(Field* from, int direction, int rate=0){
+        Movement(list<Field*> board_before_movement, Field* from, int direction, int marblesDiference = 0, int rate=0){
+            this->player = from->player;
             this->from_field = from;
             this->direction = direction;
+            this->marblesDifference = marblesDiference;
             this->rate = rate;
             // Board b = Board();
-            // this->move(b.board);
+            //cout << " M:before " << endl;
+            updateMovement(board_before_movement);
+            //cout << " M:after " << endl;
+            //printBoard(board);
+            //printBoard(this->board);
             
         }
         
         void setRate(int x)  {this->rate = x;};
 
-        list<Field*> move(list<Field*> fields){
 
-            cout << "id: "<< this->from_field->id <<" player: " << this->from_field->player << " dir: " << this->direction << endl;
+        void updateMovement(list<Field*> initial_fields){
 
-            Field* firstField = findField(fields, this->from_field->id);//m->from_field;
-            // firstField->print();
-            Field* secField = findField(fields, firstField->id + this->direction);
-            //secField->print();
-            //  move only one marble
+            int initial_marbles_diff = countingMarblesDifference(initial_fields);
+            
+            board = this->copy(initial_fields);
+            // cout << "update move " << endl;
+            // printBoard(fields);
+
+            //cout << "id: "<< this->from_field.id <<" player: " << this->from_field.player << " dir: " << this->direction << endl;
+
+            Field* firstField = findField(board, this->from_field->id);
+            Field* secField = findField(board, firstField->id + this->direction);
+
+            //cout << firstField->id << " -> " << secField->id << endl;
+
+            //while(secField)
+            firstField->player = 0;
+
+            while(!isNULL(secField) && secField->player == this->player){
+                firstField = secField;
+                secField = findField(board, firstField->id + this->direction);
+                //cout << "while: sec id=" << secField->id << endl;
+            }
+
+            // next field NULL
+            if(isNULL(secField)){
+                //cout << "Jest NULL (1)" << endl;
+                return;
+            }
+
+            // next field empty
             if(secField->player == 0){
-                secField->player = firstField->player;
-                firstField->player = 0;
+                secField->player = this->player;
+                //cout << "set player=" << secField->player << endl;
+                return;
             }
-            // move more marbles
-            else{
-                int tempPlayer = secField->player;
 
-                while(secField != NULL && secField->player != 0){
-                    //cout << "Wchodze" << endl;
-                    tempPlayer = secField->player;
-                    secField->player = firstField->player;
-                    firstField->player = 0;
-                    firstField = findField(fields, secField->id);
-                    secField = findField(fields, secField->id + this->direction);
-                    
-                }
-                if(secField->player == 0)
-                    secField->player = tempPlayer;
+            firstField = secField;
+            firstField->player = this->player;
+
+            secField = findField(board, firstField->id + this->direction);
+
+            int opposite_player = oppositePlayer(this->player);
+
+            while(!isNULL(secField) && secField->player == opposite_player){
+                firstField = secField;
+                secField = findField(board, firstField->id + this->direction);
             }
-            Field* end = findField(fields, this->from_field->id);
-            //cout << "id: "<< end->id <<" player: " << end->player << endl;
 
-            return fields;
+            // next field NULL
+            if(isNULL(secField))
+                return;
+
+            // next field empty
+            if(secField->player == 0){
+                secField->player = opposite_player;
+            }
+            return;
         }
+
+        int oppositePlayer(int p){
+            if(p == 1)
+                return 2;
+            if(p == 2)
+                return 1;
+            return 0;
+        }
+
+        int countingMarblesDifference(list<Field*> fields){
+            int myMarbles = 0;
+            int opponentMarbles = 0;
+
+            for(Field* f : fields){
+                if(f->player == this->player)
+                    myMarbles++;
+                else if(f->player != 0)
+                    opponentMarbles++;
+            }
+            return (myMarbles - opponentMarbles);
+        };
+
+        list<Field*> copy(list<Field*> old_fields){
+            list<Field*> new_fields;
+            for(Field* f : old_fields){
+                new_fields.push_back(new Field(f->id, f->player, f->marblesDifference));
+            }
+            return new_fields;
+        }
+
+        // void print(){
+        //     cout << "Ruch z id:" << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
+        // }
         void print(){
-            cout << "Ruch z id:" << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
+            cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
         }
         void printBoard(list<Field*> fields){
             HANDLE console_color;
@@ -84,7 +148,7 @@ class Movement{
                     cout << "    ";
                     
                 Field* f = findField(fields, row);
-                while(f != NULL){
+                while(!isNULL(f)){
                     if(f->player == 0)
                         SetConsoleTextAttribute(console_color, 7);
                     else if(f->player == 1)
@@ -100,12 +164,73 @@ class Movement{
             }
             SetConsoleTextAttribute(console_color, 7);
         }
-
         Field* findField(list<Field*> fields, int id){
             for(Field* field : fields){
                 if(field->id == id)
                     return field;
             }
-            return NULL;
+            return new Field();
+        }
+        bool isNULL(Field* object){
+
+            if(object->id == -1)
+                return true;
+            return false;
+        }
+
+
+        void setRate(){ // -2 -1 0 1 2 
+
+            /* RODZAJE STRATEGII */
+
+        
+        //        PRZECIWNIK BLISKO
+        // - wypchniecie kuli przeciwnika najbardziej punktowane
+        /*
+            if(this->marblesDifference > 0){
+                this->rate = 2;
+                return;
+            }
+            if(this->marblesDifference < 0){
+                this->rate = -2;
+                return;
+            }
+            this->rate = 0;
+        */
+        // - podchodzimy blizej starajac sie miec 3 kule w rzędzie
+        // - sprawdzamy czy mozemy przepchnąć kolumne przeciwnika
+
+
+        
+            
+            /*
+                PRZECIWNIK DALEKO (rozpoczecie gry)
+
+            - kierunek do środka planszy (pole 40)
+            - jak najwiecej sasiadow tego samego koloru
+            
+            */
+
+        /*
+                PRZECIWNIK DALEKO (idzie skrzydlem)
+
+            - kierunek do środka planszy (pole 40)
+            - przygotowujemy sie na atak z boku
+                - wiecej kul dajemy z przeciwnej strony
+            - jak najwiecej sasiadow tego samego koloru
+        
+        */
+
+            /*
+                PRZECIWNIK BLISKO (odleglosc 2 kule od naszej)
+
+            - sprawdzamy zagrozenie:
+                    - ilosc kul przeciwnika vs nasze
+                    - czy wypchnie nasze kule za plansze
+                    - czy mozemy rozwalic jego atakujacy szyk (z boku)
+            - korygujemy nasze ustawienie
+
+            */
+
         }
 };

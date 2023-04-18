@@ -12,8 +12,8 @@
 #include<thread>
 
 //#include "field.cpp"
-#include "branch.cpp"
-
+//#include "branch.cpp"
+#include "movement.cpp"
 using namespace std;
 
 // class Field
@@ -69,7 +69,13 @@ Field* findField(list<Field*> fields, int id){
         if(field->id == id)
             return field;
     }
-    return NULL;
+    return new Field();
+}
+bool isNULL(Field* object){
+
+    if(object->id == -1)
+        return true;
+    return false;
 }
 
 void printBoard(list<Field*> fields){
@@ -88,7 +94,7 @@ void printBoard(list<Field*> fields){
             cout << "    ";
 
         Field* f = findField(fields, row);
-        while(f != NULL){
+        while(!isNULL(f)){
             if(f->player == 0)
                 SetConsoleTextAttribute(console_color, 7);
             else if(f->player == 1)
@@ -139,36 +145,53 @@ bool isOffTheBoard(int x){
 
 list<Movement*> possibleMovesInLine(list<Field*> fields, int direction, int player){
     list<Movement*> m;
+    // cout << "aktualna plansza: " << endl;
+    // printBoard(fields);
+    cout << "direction=" << direction << endl;
 
     for(Field* firstField : fields){
+
+        //cout << "\tid field=" << firstField->id << " direction=" << direction << endl;
+        // cout << "movements: " << endl;
+        // for(Movement* mm : m)
+        //     mm->print();
+
+
+
         if(firstField->player == player){
+            //cout << "TO JEST ID=" << firstField.id << endl;
             Field* secField = findField(fields, firstField->id + direction);
             // 1 + NULL
-            if(secField == NULL)
+            if(isNULL(secField))
                 continue;
             // 1 + 0
-            if(secField->player == 0)
-                m.push_back(new Movement(firstField, direction));
+            if(secField->player == 0){
+                m.push_back(new Movement(fields, firstField, direction));
+                continue;
+            }
             // 2
-            else if(secField->player == player){                
+            else if(secField->player == player){ 
+                cout << " 2 ";               
                 Field* thirdField = findField(fields, secField->id + direction);
                 // 2 + NULL
-                if(thirdField == NULL)
+                if(isNULL(thirdField))
                     continue;
                 // 2 + 0
                 else if(thirdField->player == 0){
-                    m.push_back(new Movement(firstField, direction));
+                    cout << " 2+0 "; 
+                    m.push_back(new Movement(fields, firstField, direction));
+                    cout << " 2+0 end";
                     continue;
                 }  
                 Field* firstOut = findField(fields, thirdField->id + direction);
                 // 2 + 1
                 if(thirdField->player != player){
                     // 2 + 1 + NULL
-                    if(firstOut == NULL)
-                        m.push_back(new Movement(firstField, direction, 2));
+                    if(isNULL(firstOut))
+                        m.push_back(new Movement(fields, firstField, direction, 2));
                     // 2 + 1 + 0
                     else if(firstOut->player == 0)
-                        m.push_back(new Movement(firstField, direction));
+                        m.push_back(new Movement(fields, firstField, direction));
                     // 2 + 1 + 1 || 2 + 2
                     else
                         continue;
@@ -176,11 +199,11 @@ list<Movement*> possibleMovesInLine(list<Field*> fields, int direction, int play
                 // 3               
                 else{
                     // 3 + NULL
-                    if(firstOut == NULL)
+                    if(isNULL(firstOut))
                         continue;
                     // 3 + 0
                     else if(firstOut->player == 0)                    
-                        m.push_back(new Movement(firstField, direction));
+                        m.push_back(new Movement(fields, firstField, direction));
                     // 4  -wrong
                     else if(firstOut->player == player)
                         continue;
@@ -188,24 +211,24 @@ list<Movement*> possibleMovesInLine(list<Field*> fields, int direction, int play
                     else{
                         Field* secOut = findField(fields, firstOut->id + direction);
                         // 3 + 1 + NULL
-                        if(secOut == NULL)
-                            m.push_back(new Movement(firstField, direction, 2));
+                        if(isNULL(secOut))
+                            m.push_back(new Movement(fields, firstField, direction, 2));
                         // 3 + 1 + 1  -wrong
                         else if(secOut->player == player)
                             continue; 
                         // 3 + 1 + 0
                         else if(secOut->player == 0)
-                            m.push_back(new Movement(firstField, direction));
+                            m.push_back(new Movement(fields, firstField, direction));
 
                         // 3 + 2 opponent
                         else{
                             Field* thirdOut = findField(fields, secOut->id + direction);
                             // 3 + 2 + NULL
-                            if(thirdOut == NULL)
-                                m.push_back(new Movement(firstField, direction, 2));
+                            if(isNULL(thirdOut))
+                                m.push_back(new Movement(fields, firstField, direction, 2));
                             // 3 + 2 + 0
                             else if(thirdOut->player == 0)
-                                m.push_back(new Movement(firstField, direction));
+                                m.push_back(new Movement(fields, firstField, direction));
                             // 3 + 3 || 3 + 2 + 1
                             else
                                 continue;
@@ -235,7 +258,7 @@ list<Field*> move(list<Field*> fields, Movement* m){
     else{
         int tempPlayer = secField->player;
 
-        while(secField != NULL && secField->player != 0){
+        while(!isNULL(secField) && secField->player != 0){
             //cout << "Wchodze" << endl;
             tempPlayer = secField->player;
             secField->player = firstField->player;
@@ -252,158 +275,162 @@ list<Field*> move(list<Field*> fields, Movement* m){
 
     return fields;
 }
+// list<Field*> change_board(list<Field*> initial_board, int from_id, int direction){
+
+//     list<Field*> fields = copy(initial_board);
+
+//     Field* firstField = findField(fields, from_id);
+//     Field* secField = findField(fields, from_id + direction);
+
+//     int pom_player = secField->player;
+//     secField->player = firstField->player;
+//     firstField->player = 0;
+
+//     firstField = secField;
+//     secField = findField(fields, firstField->id + direction);
+
+//     // while(!isOffTheBoard(secField->id) || secField->player != 0){
+//     while(!isNULL(secField) || secField->player != 0){
+//         firstField = secField;
+//         secField = findField(fields, firstField->id + direction);
+//     }
+//     // empty field
+//     if(isNull(secField))
+//         return fields;
+//     if(secField->player != 0)
+    
+// }
 
 list<Movement*> generate_movements(list<Field*> fields, int currentPlayer){ //player 1,2
-    int directions[] = {-1, 1, -10, 10, -9, 9};
+    //int directions[] = {-1, 1, -10, 10, -9, 9};
+    cout << " 1 " << endl;
 
     list<Movement*> movements;
     for(int direction: {-1, 1, -10, 10, -9, 9}){
+        cout << " i ";
         list<Movement*> ms = possibleMovesInLine(fields, direction, currentPlayer);
+        
+        cout << " j ";
         for( Movement* m : ms)
             movements.push_back(m);
-        
+        //break; 
     }
-
-    for(Movement* m : movements){
-        m->print();
-    }
-    cout << "Jest dostepnych: " << movements.size()<< endl;
+    // cout << "Generate_movements size=" << movements.size() << endl;
+    // for(Movement* m : movements){
+    //     m->print();
+    // }
+    //cout << "Jest dostepnych: " << movements.size()<< endl;
 
     return movements;
 }
 
-list<Movement*> setRate(list<Movement*> movements, list<Field*> board){
-
-    int player = movements.front()->from_field->player;
-
-    for(Movement* m : movements){
-        ;
+list<Field*> copy(list<Field*> old_fields){
+    list<Field*> new_fields;
+    for(Field* f : old_fields){
+        new_fields.push_back(new Field(f->id, f->player));
     }
-
-    /* RODZAJE STRATEGII */
-    
-    /*
-        PRZECIWNIK DALEKO (rozpoczecie gry)
-
-    - kierunek do środka planszy (pole 40)
-    - jak najwiecej sasiadow tego samego koloru
-    
-    */
-
-   /*
-        PRZECIWNIK DALEKO (idzie skrzydlem)
-
-    - kierunek do środka planszy (pole 40)
-    - przygotowujemy sie na atak z boku
-        - wiecej kul dajemy z przeciwnej strony
-    - jak najwiecej sasiadow tego samego koloru
-   
-   */
-
-    /*
-        PRZECIWNIK BLISKO (odleglosc 2 kule od naszej)
-
-    - sprawdzamy zagrozenie:
-            - ilosc kul przeciwnika vs nasze
-            - czy wypchnie nasze kule za plansze
-            - czy mozemy rozwalic jego atakujacy szyk (z boku)
-    - korygujemy nasze ustawienie
-
-    */
-
-   /*
-        PRZECIWNIK BLISKO
-
-    - podchodzimy blizej starajac sie miec 3 kule w rzędzie
-    - sprawdzamy czy mozemy przepchnąć kolumne przeciwnika
-   
-    - wypchniecie kuli przeciwnika najbardziej punktowane
-   */
-
-
-    return list<Movement*>();
+    return new_fields;
 }
-Movement* selectMove(list<Movement*> movements){
-    Movement* returned = movements.back();
-    for(Movement* m : movements){
-        if(m->rate > returned->rate)
-            returned = m;
-    }
-    int counter = 0;
-    for(Movement* m : movements){
-        if(returned->rate == m->rate)
-            counter++;
-    }
-    if(counter > 0){
-        int randNumber = int(rand() % counter);
-        counter = 0;
-        for(Movement* m : movements){
-            if(m->rate == returned->rate)
-                if(counter == randNumber)
-                    return m;
-                counter++;
 
+Movement* selectMovement(list<Movement*> movements){
+    int theBestRate = -3;
+    list<Movement*> theBestMovements;
+    for(Movement* m : movements){
+
+        m->setRate();
+        if(m->rate > theBestRate){
+            theBestMovements.clear();
+            theBestMovements.push_back(m);
+            theBestRate = m->rate;
         }
-    }
+        else if(m->rate == theBestRate)
+            theBestMovements.push_back(m);
 
-    return returned;
+        m->print();
+        printBoard(m->board);
+    }
+    // movement drawing
+    int randNumber = int(rand() % theBestMovements.size());
+    cout << "Rand number=" << randNumber << " a lista ma size=" << theBestMovements.size() << endl;;
+    list<Movement*>::iterator it = theBestMovements.begin();
+    advance(it, randNumber);
+    return *it;
+    //return theBestMovements[randNumber];
+
+
+    // int counter = 0;
+    // for(Movement* m : theBestMovements){
+    //     if(counter == randNumber)
+    //         return m;
+    //     counter++;
+    // }
 }
 
-int algorythm(Branch* branch, int depth, int player){
 
-    if(depth == 0)
-        return 2;
+int changePlayer(int player){
+    if(player == 2) 
+        return 1;
+    return 2;
+}
+// Movement* finallyRate(list<Field*> initialBoard, int player, int depth){
+//     cout << "ZACZYNAM FINALLYRATE   player=" << player << " depth=" << depth << endl;
+//     printBoard(initialBoard);
+//     if(depth == 0){
+//         cout << "\tdepth == 0 czyli zwracam nullptr" << endl;
+//         // return ocena danego ruchu
+//         return nullptr;
+//     }
+//     list<Movement*> newMovements = generate_movements(initialBoard, player);
 
     
+//     Movement* theBestMovement = newMovements.front();
+//     int theBestRate = -3;
+//     int i = 0;
+//     for(Movement* & m : newMovements){
 
-    return 1;
+//         printBoard(m->board);
+
+//         int currentRate = finallyRate(m->board, changePlayer(player), --depth)->rate;
+//         if(i == 0)
+//             theBestRate = currentRate;
+//         if(currentRate > theBestRate){
+//             theBestMovement = m;
+//             theBestRate = currentRate;
+//         }
+//         i++;
+//     }
+//     theBestMovement->print();
+//     return theBestMovement;
+// }
+
+
+Movement* finallyRate(list<Field*> initialBoard, int player){
+    cout << "Stan pocxatkowy planszy:" << endl;
+    printBoard(initialBoard);
+
+    list<Movement*> newMovements = generate_movements(initialBoard, player);
+
+    cout << "ilosc ruchow: " << newMovements.size() << endl;
+    
+    Movement* theBestMovement = selectMovement(newMovements);
+
+    cout << "Najlepszy ruch: " << endl;
+    theBestMovement->print();
+    return theBestMovement;
 }
 
 int main(){
-
-    cout << "Maad\n";
-
+    cout << "MMM" <<endl;
     // starting Board
     list<Field*> datas = generateList();
-    printBoard(datas);
 
-    list<Branch*> branches;
-
-    //first predicting
-    for(Movement* & m : generate_movements(datas, 2)){
-        branches.push_back(new Branch(m));
-    }
-
-    //next predicting
-    for(Branch* & branch : branches){
-        // ? co dalej?
-    }
-        
-        //Movement* chosenMove = selectMove(generate_movements(datas, 2));
+    // glebokosc 1
     
-    
-    //Branch b = new Branch();
-    
+    Movement* theBest = finallyRate(datas, 2);
 
-    // printBoard(datas);
+    printBoard(theBest->board);
 
-    // Movement* chosenMove = selectMove(generate_movements(datas, 2));
+    // jakie strategie do rate powinienem uzyc? -------------------
 
-    
-
-    // list<Field*> fields = datas;
-
-    // for(int i = 1; i < 10; i++){
-    //     if(i%2 == 1)
-    //         chosenMove = selectMove(generate_movements(fields, 1));
-    //     else
-    //         chosenMove = selectMove(generate_movements(fields, 2));
-
-    //     fields = move(fields, chosenMove);
-
-    //     this_thread::sleep_for(chrono::milliseconds(5000));
-
-    //     printBoard(fields);
-    // }
 
 }

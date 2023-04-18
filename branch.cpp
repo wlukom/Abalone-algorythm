@@ -19,7 +19,7 @@ class Branch{
         Branch(int id){
             //Board startBoard = Board();
 
-        }
+        } 
         Branch(Movement* m){
             this->head = m;
             this->last = m;
