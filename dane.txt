@@ -1,0 +1,102 @@
+	PATH
+		from=3 dir=-1
+
+	PATH
+		from=4 dir=-1
+
+	PATH
+		from=13 dir=-1
+
+	PATH
+		from=14 dir=-1
+
+	PATH
+		from=22 dir=-1
+
+	PATH
+		from=23 dir=-1
+
+	PATH
+		from=24 dir=-1
+
+	PATH
+		from=32 dir=-1
+
+	PATH
+		from=33 dir=-1
+
+	PATH
+		from=34 dir=-1
+
+	PATH
+		from=42 dir=-1
+
+	PATH
+		from=43 dir=-1
+
+	PATH
+		from=44 dir=-1
+
+	PATH
+		from=53 dir=-1
+
+	PATH
+		from=22 dir=-10
+
+	PATH
+		from=32 dir=-10
+
+	PATH
+		from=42 dir=-10
+
+	PATH
+		from=22 dir=10
+
+	PATH
+		from=32 dir=10
+
+	PATH
+		from=42 dir=10
+
+	PATH
+		from=3 dir=9
+
+	PATH
+		from=4 dir=9
+
+	PATH
+		from=13 dir=9
+
+	PATH
+		from=14 dir=9
+
+	PATH
+		from=22 dir=9
+
+	PATH
+		from=23 dir=9
+
+	PATH
+		from=24 dir=9
+
+	PATH
+		from=32 dir=9
+
+	PATH
+		from=33 dir=9
+
+	PATH
+		from=34 dir=9
+
+	PATH
+		from=42 dir=9
+
+	PATH
+		from=43 dir=9
+
+	PATH
+		from=44 dir=9
+
+	PATH
+		from=53 dir=9
+
