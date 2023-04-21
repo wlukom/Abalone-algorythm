@@ -179,6 +179,8 @@ list<Path*> createPaths(Board board, int depth, int player){
 
 int main(){
 
+    cout << "hehehe";
+
     // create board
     Board initial_board = Board();
     //initial_board.print();
