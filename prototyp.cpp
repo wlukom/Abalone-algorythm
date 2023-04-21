@@ -56,130 +56,80 @@ int changePlayer(int player){
         return 1;
     return 2;
 }
-// Path* createPaths(Board board, int depth, int player){
-//     cout << " Create paths depth=" << depth << " player=" << player <<endl; 
-//     if(depth == 0){
-//         cout << " depth == 1 FINAL" << endl;
-//         return new Path();
-//     }
 
-//     Path* paths = new Path();
-    
-//     for(Movement* m : board.generate_movements(player)){
-//         m->print();
-
-//         Board b = Board(board.board);
-//         b.updateMovement(m);
-
-//         Path* new_path = createPaths(b, depth - 1, changePlayer(player));
-
-//         paths->paths.push_back(new Path(m));
-//         paths->paths.back()->paths = new_path->paths;
-//         // paths.add(new Path([m]));
-//         //paths.push_back(new Path(m));
-//     }
-//     cout << "KONIEC PRAWIE";
-//     return paths;
-
-// }
-
-list<Path*> createPaths(Board board, int depth, int player){
-    //cout << " Create paths depth=" << depth << " player=" << player <<endl; 
-
-    list<Path*> paths;
-    
-    for(Movement* m : board.generate_movements(player)){
-        // paths.add(new Path([m]));
-        paths.push_back(new Path(m));
-    }
-
-    if(depth == 1){
+Path* createPaths(Board board, int depth, int player){
+   // cout << " Create paths depth=" << depth << " player=" << player <<endl; 
+    if(depth == 0){
         //cout << " depth == 1 FINAL" << endl;
-        return paths;
+        return NULL;//new Path();
     }
 
-    Path* theLastPath = paths.back();
+    Path* paths = new Path();
 
-    //return paths;
-    for (list<Path*>::iterator path = paths.begin(); path != paths.end(); ++path) {
-        //cout << "a";
-        //(*path)->print();
+    for(Movement* m : board.generate_movements(player)){
 
-        if(*path == theLastPath){
-            cout << "to ja juz wychodze" << endl;
-            break;          
-        }
-        //std::cout<<(*it)->name;
-
-        
-
-        Board b = Board(board.board);
-        b.updateMovement((*path)->getLastMovement());
+        Board b = Board(board.fields);
+        b.updateMovement(m);
         //b.print();
+        Path* new_path = new Path(m);
 
-        for(Path* p : createPaths(b, depth - 1, changePlayer(player))){
-            p->movements.push_front((*path)->getLastMovement());
-            paths.push_back(p);
+        // paths->children.push_back(new Path(m));
+
+        Path* new_child = createPaths(b, depth - 1, changePlayer(player));
+
+        
+        if(new_child != NULL){
+
+            new_path->children.push_back(new_child);
+            //paths->children.back()->children = new_child->children;
+            //paths->children.back()->addPaths(new_child->children);
         }
-        //cout << " B " << endl;
-    }
-///////////////////////////////////////////////////////////////////
 
-    // for(Path* path: paths){
-    //     //path->print();
-    //     // do przekywania path dalej - zrobic drzewko nizej(skopiowac do tej pory wszystkei ruchy)
-    //     Board b = Board(board.board);
-        
-    //     //cout << " A " << endl;
-    //     //Board b = board.copy();
-        
-    //     b.updateMovement(path->getLastMovement());
-    //     //b.print();
-    //     //paths.addPaths(createPaths(b, changePlayer(player), depth - 1));
-    //     for(Path* p : createPaths(b, depth - 1, changePlayer(player))){
-    //         paths.push_back(p);
-    //     }
-    //     //paths = createPaths(b, depth - 1, changePlayer(player));
-    //     //cout << " B " << endl;
-    // }
-    
+        paths->children.push_back(new_path);
+
+    }
+    //int pom = counting_children(paths);
+    //cout << "total count=" << 
+    return paths;
+
+}
+void traverse_tree(Path* path) {
+    path->movement->print();
+    //cout << "Ruch: " << node.move << std::endl;
+    for (Path* child : path->children) {
+        traverse_tree(child);
+    }
+}
+
+int counting_children(Path* path) {
+    if(path->children.size() == 0){
+        return 1;
+    }
+
+    int count = 0;
+    for (Path* child : path->children) {
+        count += counting_children(child);
+    }
+    return count;
+}
+void display_tree(Path* node, int depth = 0) {
+    // Wyświetlanie identyfikatora węzła wraz z poziomem drzewa
+    for (int i = 0; i < depth; ++i) {
+        std::cout << "|  ";
+    }
+    std::cout << "|-- ";// << node->movement << std::endl;
+    node->print();
+
+    // Wywołanie rekurencyjne dla dzieci węzła
+    for (Path* child : node->children) {
+        display_tree(child, depth + 1);
+    }
 }
 
 
-// list<Path*> createPaths(list<Field*> board, int depth){
-
-//     Board b = initial_boards;
-//     b.generate_movements(2)
-
-//     list<Path*> paths;
-
-//     for(Path p: paths){
-//         auto board = b;
-//         for(int i = 0; i < depth i++){
-//             list<Movement*> possible_moves = board.generate_movements(board, 2);
-//             Movement* move = losuje z possible;
-//             p.add(move);
-//             board.apply(move)
-//         }
-//     }
-
-
-    
-// list<Movement*> possible_moves = generate_movements(board, 2);
-    
-//     for(Movement* m : possible_moves){
-//         paths.push_back(new Path(m));
-//     }
-
-//     for(Path* p : paths){
-//         // dla kazdego path generate_movements
-//     }
-//     return paths;
-// }
-
 int main(){
 
-    cout << "decision treeeee";
+    cout << "decision treeeee" << endl;;
 
     // create board
     Board initial_board = Board();
@@ -187,34 +137,11 @@ int main(){
 
 
     // create paths
-    list<Path*> paths = createPaths(initial_board, 2, 2);
-    //Path* p = createPaths(initial_board, 2,2);
-    //return 10;
+    Path* p = createPaths(initial_board, 2,2);
+    int pom = counting_children(p);
+    cout << "suma dzieci=" << pom << endl;
+    display_tree(p, 2);
 
-    cout << "ilosc=" << paths.size();
-    for(Path* p : paths){
-        Board b = Board();
-        for(Movement* m : p->movements){
-            b.updateMovement(m);
-            b.print();
-        }
-        cout << endl << endl;
-            
-    }
-    // return 1;
-    // ofstream s("dane.txt");
-    // for(Path* p : paths){
-        
-    //     Board b = Board();
-        
-
-    //     b.updateMovement(p->getLastMovement());
-    //     p->print(s);
-    //     s << endl;
-    //    // break;
-    // }
-    // s.close();
-    // cout << "Koniec" ;
-
+    //traverse_tree(p);
 
 }

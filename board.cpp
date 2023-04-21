@@ -10,7 +10,7 @@ int offTheBoard[] = {5,6,7,8,15,16,17,25,26,35,45,54,55,63,64,65,72,73,74,75};
 
 class Board{
     public:
-        list<Field*> board;
+        list<Field*> fields;
 
         Board(){
             //list<Field*> myList;
@@ -28,18 +28,18 @@ class Board{
                         x++;
 
                 if(contains(x, fieldsPlayer1, fieldsPlayer1Size))
-                    this->board.push_back(new Field(x,1));
+                    this->fields.push_back(new Field(x,1));
                 else if(contains(x, fieldsPlayer2, fieldsPlayer2Size))
-                    this->board.push_back(new Field(x,2));
+                    this->fields.push_back(new Field(x,2));
                 else
-                    this->board.push_back(new Field(x,0));
+                    this->fields.push_back(new Field(x,0));
             }
             //return myList;
         }
 
-        Board(list<Field*> fields){
-            for(Field* f : fields){
-                board.push_back(new Field(f->id, f->player));
+        Board(list<Field*> input_fields){
+            for(Field* f : input_fields){
+                this->fields.push_back(new Field(f->id, f->player));
             }
         }
 
@@ -119,7 +119,7 @@ class Board{
             // printBoard(fields);
             //cout << "direction=" << direction << endl;
 
-            for(Field* firstField : this->board){
+            for(Field* firstField : this->fields){
 
                 //cout << "\tid field=" << firstField->id << " direction=" << direction << endl;
                 // cout << "movements: " << endl;
@@ -136,7 +136,7 @@ class Board{
                         continue;
                     // 1 + 0
                     if(secField->player == 0){
-                        m.push_back(new Movement(this->board, firstField, direction));
+                        m.push_back(new Movement(this->fields, firstField, direction));
                         continue;
                     }
                     // 2
@@ -149,7 +149,7 @@ class Board{
                         // 2 + 0
                         else if(thirdField->player == 0){
                             //cout << " 2+0 "; 
-                            m.push_back(new Movement(this->board, firstField, direction));
+                            m.push_back(new Movement(this->fields, firstField, direction));
                             //cout << " 2+0 end";
                             continue;
                         }  
@@ -158,10 +158,10 @@ class Board{
                         if(thirdField->player != player){
                             // 2 + 1 + NULL
                             if(isNULL(firstOut))
-                                m.push_back(new Movement(this->board, firstField, direction, 2));
+                                m.push_back(new Movement(this->fields, firstField, direction, 2));
                             // 2 + 1 + 0
                             else if(firstOut->player == 0)
-                                m.push_back(new Movement(this->board, firstField, direction));
+                                m.push_back(new Movement(this->fields, firstField, direction));
                             // 2 + 1 + 1 || 2 + 2
                             else
                                 continue;
@@ -173,7 +173,7 @@ class Board{
                                 continue;
                             // 3 + 0
                             else if(firstOut->player == 0)                    
-                                m.push_back(new Movement(this->board, firstField, direction));
+                                m.push_back(new Movement(this->fields, firstField, direction));
                             // 4  -wrong
                             else if(firstOut->player == player)
                                 continue;
@@ -182,23 +182,23 @@ class Board{
                                 Field* secOut = findField(firstOut->id + direction);
                                 // 3 + 1 + NULL
                                 if(isNULL(secOut))
-                                    m.push_back(new Movement(this->board, firstField, direction, 2));
+                                    m.push_back(new Movement(this->fields, firstField, direction, 2));
                                 // 3 + 1 + 1  -wrong
                                 else if(secOut->player == player)
                                     continue; 
                                 // 3 + 1 + 0
                                 else if(secOut->player == 0)
-                                    m.push_back(new Movement(this->board, firstField, direction));
+                                    m.push_back(new Movement(this->fields, firstField, direction));
 
                                 // 3 + 2 opponent
                                 else{
                                     Field* thirdOut = findField(secOut->id + direction);
                                     // 3 + 2 + NULL
                                     if(isNULL(thirdOut))
-                                        m.push_back(new Movement(this->board, firstField, direction, 2));
+                                        m.push_back(new Movement(this->fields, firstField, direction, 2));
                                     // 3 + 2 + 0
                                     else if(thirdOut->player == 0)
-                                        m.push_back(new Movement(this->board, firstField, direction));
+                                        m.push_back(new Movement(this->fields, firstField, direction));
                                     // 3 + 3 || 3 + 2 + 1
                                     else
                                         continue;
@@ -266,7 +266,7 @@ class Board{
 
 
         Field* findField(int id){
-            for(Field* field : this->board){
+            for(Field* field : this->fields){
                 if(field->id == id)
                     return field;
             }

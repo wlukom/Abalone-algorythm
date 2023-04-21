@@ -42,67 +42,6 @@ class Movement{
         
         void setRate(int x)  {this->rate = x;};
 
-
-        // void updateMovement(list<Field*> initial_fields){
-
-        //     int initial_marbles_diff = countingMarblesDifference(initial_fields);
-            
-        //     board = this->copy(initial_fields);
-        //     // cout << "update move " << endl;
-        //     // printBoard(fields);
-
-        //     //cout << "id: "<< this->from_field.id <<" player: " << this->from_field.player << " dir: " << this->direction << endl;
-
-        //     Field* firstField = findField(board, this->from_field->id);
-        //     Field* secField = findField(board, firstField->id + this->direction);
-
-        //     //cout << firstField->id << " -> " << secField->id << endl;
-
-        //     //while(secField)
-        //     firstField->player = 0;
-
-        //     while(!isNULL(secField) && secField->player == this->player){
-        //         firstField = secField;
-        //         secField = findField(board, firstField->id + this->direction);
-        //         //cout << "while: sec id=" << secField->id << endl;
-        //     }
-
-        //     // next field NULL
-        //     if(isNULL(secField)){
-        //         //cout << "Jest NULL (1)" << endl;
-        //         return;
-        //     }
-
-        //     // next field empty
-        //     if(secField->player == 0){
-        //         secField->player = this->player;
-        //         //cout << "set player=" << secField->player << endl;
-        //         return;
-        //     }
-
-        //     firstField = secField;
-        //     firstField->player = this->player;
-
-        //     secField = findField(board, firstField->id + this->direction);
-
-        //     int opposite_player = oppositePlayer(this->player);
-
-        //     while(!isNULL(secField) && secField->player == opposite_player){
-        //         firstField = secField;
-        //         secField = findField(board, firstField->id + this->direction);
-        //     }
-
-        //     // next field NULL
-        //     if(isNULL(secField))
-        //         return;
-
-        //     // next field empty
-        //     if(secField->player == 0){
-        //         secField->player = opposite_player;
-        //     }
-        //     return;
-        // }
-
         int oppositePlayer(int p){
             if(p == 1)
                 return 2;
@@ -136,6 +75,8 @@ class Movement{
         //     cout << "Ruch z id:" << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
         // }
         void print(){
+            if(this->board.empty())
+                cout << "\tMovemnt NULL" << endl;
             cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
         }
         void printBoard(list<Field*> fields){
