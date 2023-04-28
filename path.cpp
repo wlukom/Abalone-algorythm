@@ -37,7 +37,16 @@ class Path{
             }
         }
         void print(){
+            cout << "\tilosc dzieci=" << this->children.size() << endl;
             this->movement->print();
+        }
+        void printChildren(){
+            cout << "--- Children:" << endl;
+            for(Path* p : this->children){
+                p->print();
+                cout << endl;
+            }
+            cout << "--- Koniec:" << endl;
         }
 
 };

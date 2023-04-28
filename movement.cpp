@@ -19,7 +19,10 @@ class Movement{
         int rate; // -2 1 0 1 2
 
 
-        Movement(){};
+        Movement(){
+            this->from_field = new Field(-1, -1);
+            this->direction = 0;
+        }
         Movement(list<Field*> board_before_movement, Field* from, int direction, int marblesDiference = 0, int rate=0){
             this->player = from->player;
             this->from_field = from;
@@ -77,7 +80,11 @@ class Movement{
         void print(){
             if(this->board.empty())
                 cout << "\tMovemnt NULL" << endl;
-            cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
+            //this->from_field->print();
+            else{
+                cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
+            }
+            
         }
         void printBoard(list<Field*> fields){
             HANDLE console_color;
