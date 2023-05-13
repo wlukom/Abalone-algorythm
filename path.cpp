@@ -11,34 +11,41 @@ class Path{
     public:
         //int id;
         int value;
-        //list<Movement*> movements;
+        int depth;
+        int player;
+        
         Movement* movement;
         list<Path*> children;
 
-        // Movement* head = nullptr;
-        // Movement* last = nullptr;
-
-
-        // Path(int id){
-        //     //Board startBoard = Board();
-        //     this->id = id;
-        // }
         Path(){
+            this->movement = new Movement();
+        }
+        Path(int depth, int player){
+            this->depth = depth;
+            this->player = player;
             this->movement = new Movement();
         }
         Path(Movement* movement){
             //movements.push_back(movement);
             this->movement = movement;
         }
-
-        void addPaths(list<Path*> new_paths){
-            for(Path* p : new_paths){
-                this->children.push_back(p);
-            }
+        Path(Movement* movement, int depth, int player){
+            this->movement = movement;
+            this->depth = depth;
+            this->player = player;
         }
+        string toString() {
+            return this->movement->toString();
+        }
+
+        void addChild(Path* new_path){
+            this->children.push_back(new_path);
+        }
+
         void print(){
-            cout << "\tilosc dzieci=" << this->children.size() << endl;
+            cout << "\tmovement=" << endl;
             this->movement->print();
+            cout << "\tilosc dzieci=" << this->children.size() << endl;
         }
         void printChildren(){
             cout << "--- Children:" << endl;

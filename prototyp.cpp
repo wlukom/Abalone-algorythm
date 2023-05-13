@@ -57,118 +57,72 @@ int changePlayer(int player){
     return 2;
 }
 
-
-Path* createPaths(Board board, int depth, int player){
-    cout << " Create paths depth=" << depth << " player=" << player <<endl; 
-    if(depth == 0){
-        cout << " depth == 0 FINAL" << endl;
-        return nullptr;//new Path();
+void createChild(Path* path, Board board){
+    if(path->depth == 0){
+        //cout << " depth == 0 FINAL" << endl;
+        return;
     }
 
-    Path* paths = new Path();
+    list<Movement*> moves = board.generate_movements(path->player);
+    if(moves.empty()){
+        cout << "MOVES ARE EMPTY !!!!!!!" << endl;
+        return;
+    }
 
-    for(Movement* m : board.generate_movements(player)){
+    for(Movement* m : moves){
+        int current_depth = path->depth - 1;
 
+        Path* child = new Path(m, current_depth, changePlayer(path->player));
+
+        //cout << " Zostal stworzony path depth=" << child->depth << " player=" << child->player <<endl; 
+        
         Board b = Board(board.fields);
         b.updateMovement(m);
-        b.print();
-        Path* new_path = new Path(m);
+        //b.print();
 
-        // paths->children.push_back(new Path(m));
-
-        Path* new_child = createPaths(b, depth - 1, changePlayer(player));
-
-        if(new_child != nullptr){
-            cout << "NIE JEST NULLPTR" << endl;
-            new_path->children.push_back(new_child);
-        }
-        
-        //cout << "A";
-        cout << "new path:" << endl;
-        new_path->print();
-        //cout << "B";
-        paths->children.push_back(new_path);
-        cout << "paths:" << endl;
-        paths->print();
-
-        // if(new_child != NULL){
-
-
-        //     //paths->children.back()->children = new_child->children;
-        //     //paths->children.back()->addPaths(new_child->children);
-        // }
-        // else{
-        //     cout << "c";
-        // }
-
-        
+    
+        createChild(child, b);
+        path->addChild(child);
 
     }
-    //int pom = counting_children(paths);
-    //cout << "total count=" << 
-    return paths;
 
 }
 
-void traverse_tree(Path* path) {
-    path->movement->print();
-    cout << endl;
-    //cout << "Ruch: " << node.move << std::endl;
-    for (Path* child : path->children) {
-        traverse_tree(child);
+void printPath(Path* node) {
+    for (int i = 0; i < node->depth; i++) {
+        cout << "\t";
     }
-}
-
-int counting_children(Path* path) {
-    if(path->children.size() == 0){
-        return 1;
-    }
-
-    int count = 0;
-    for (Path* child : path->children) {
-        count += counting_children(child);
-    }
-    return count;
-}
-void display_tree(Path* node, int depth = 0) {
-    if(node == nullptr)
-        return;
-    // Wyświetlanie identyfikatora węzła wraz z poziomem drzewa
-    // for (int i = 0; i < depth; ++i) {
-    //     std::cout << "|  ";
-    // }
-    // std::cout << "|-- ";// << node->movement << std::endl;
-    cout << " depth=" << depth << " ";
-    node->print();
-
-    // Wywołanie rekurencyjne dla dzieci węzła
+    cout << "- " << node->toString() << endl;
     for (Path* child : node->children) {
-        display_tree(child, depth + 1);
+        printPath(child);
+    }
+}
+int counting_final_children(Path* node) {
+    if (node->children.empty())
+        return 1;
+    else{
+        int count = 0;
+        for (Path* child : node->children)
+            count += counting_final_children(child);
+
+        return count;
     }
 }
 
 
 int main(){
-
-    cout << "decision treeeee" << endl;;
-    // ToDo
-
-    // - popracowac nad wyswietlniem drzewa - funkcja display
+    int depth = 2;
+    int player = 2;
 
     // create board
     Board initial_board = Board();
-    //initial_board.print();
-
 
     // create paths
-    Path* p = createPaths(initial_board, 1,2);
-    cout << "Koniec" <<endl;
-    p->printChildren();
-    //return 1;
-    int pom = counting_children(p);
-    cout << "suma dzieci=" << pom << endl;
-    display_tree(p, 1);
+    Path* root_node = new Path(depth, player);
 
-    //traverse_tree(p);
+    createChild(root_node, initial_board);
 
+    cout << "suma dzieci=" << counting_final_children(root_node) << endl;
+
+    printPath(root_node);
 }

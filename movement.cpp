@@ -29,18 +29,13 @@ class Movement{
             this->direction = direction;
             this->marblesDifference = marblesDiference;
             this->rate = rate;
+
             HANDLE console_color;
             console_color = GetStdHandle(STD_OUTPUT_HANDLE);
             SetConsoleTextAttribute(console_color, 7);
-            // Board b = Board();
-            //cout << " M:before " << endl;
-
-            //updateMovement(board_before_movement);
-            
-            //cout << " M:after " << endl;
-            //printBoard(board);
-            //printBoard(this->board);
-            
+        }
+        string toString() {
+            return "Movement z " + to_string(this->from_field->id) + " dir:" + to_string(this->direction) + " rate:" + to_string(this->rate);
         }
         
         void setRate(int x)  {this->rate = x;};
@@ -78,12 +73,14 @@ class Movement{
         //     cout << "Ruch z id:" << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
         // }
         void print(){
+            cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
+            return;
             if(this->board.empty())
                 cout << "\tMovemnt NULL" << endl;
             //this->from_field->print();
-            else{
-                cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
-            }
+            // else{
+            //     cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
+            // }
             
         }
         void printBoard(list<Field*> fields){

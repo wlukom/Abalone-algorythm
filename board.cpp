@@ -44,6 +44,10 @@ class Board{
         }
 
         void updateMovement(Movement* movement){
+            // this is from first Path in the tree
+            if(movement->direction == 0){
+                return;
+            }
 
             //int initial_marbles_diff = countingMarblesDifference(initial_fields);
             
@@ -208,7 +212,7 @@ class Board{
                     }
                 }
             }
-
+            
             return m;
         }
 
