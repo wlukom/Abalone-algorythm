@@ -111,49 +111,27 @@ class Board{
 
             // NUMBER OF MARBLES
             cout << " ** NUMBER OF MARBLES **" << endl;
-            int prev_number_of_marbles_player = 0;
-            int prev_number_of_marbles_opponent = 0;
 
-            for(Field* marble : initial_board.getFields()){
-                if(marble->player == player)
-                    prev_number_of_marbles_player++;
-                else if(marble->player != 0)
-                    prev_number_of_marbles_opponent++;
-            }
 
-            int current_number_of_marbles_player = 0;
-            int current_number_of_marbles_opponent = 0;
+            int prev_marbles_balance = this->marbles_balance(player);
+            int current_marbles_balance = initial_board.marbles_balance(player);
+            // cout << "count1=" << prev_marbles_balance << endl;
+            // cout << "count2=" << current_marbles_balance << endl;
 
-            for(Field* marble : this->fields){
-                if(marble->player == player)
-                    current_number_of_marbles_player++;
-                else if(marble->player != 0)
-                    current_number_of_marbles_opponent++;
-            }
-
-            int player_balance_marbles = abs(current_number_of_marbles_player - prev_number_of_marbles_player);
-            int opponent_balance_marbles = abs(current_number_of_marbles_opponent - prev_number_of_marbles_opponent);
-            cout << "count player=" << player_balance_marbles << endl;
-            cout << "count oppo=" << opponent_balance_marbles << endl;
-
-            if(player_balance_marbles < opponent_balance_marbles)
+            if(prev_marbles_balance > current_marbles_balance)
                 return 2;
-            if(player_balance_marbles > opponent_balance_marbles)
+            if(prev_marbles_balance < current_marbles_balance)
                 return -2;
 
 
             // DISTNACE FROM THE CENTER
             cout << " ** DISTANCE FROM THE CENTER **" << endl;
 
-            int prev_player_points = initial_board.rate_distance_from_center(player);
-            int prev_opponent_points = initial_board.rate_distance_from_center(oppositePlayer(player));
-            int prev_balanse_points = prev_player_points - prev_opponent_points;
+            int prev_balance_points = initial_board.distance_from_center_balance(player);
+            int current_balance_points = this->distance_from_center_balance(player);
+            
 
-            int current_player_points = rate_distance_from_center(player);
-            int current_opponent_points = rate_distance_from_center(oppositePlayer(player));
-            int current_balanse_points = current_player_points - current_opponent_points;
-
-            int points_balance = current_balanse_points - prev_balanse_points;
+            int points_balance = current_balance_points - prev_balance_points;
 
             if(abs(points_balance) > 2){ // gdy bedzie roznica 2
                 if(points_balance)
@@ -161,11 +139,6 @@ class Board{
                 else
                     return -1;
             }
-
-
-
-
-
         
 
         
@@ -218,7 +191,20 @@ class Board{
             */
         }
 
-        int rate_distance_from_center(int player){
+        int marbles_balance(int player){
+            int player_marbles = 0;
+            int opponent_marbles = 0;
+            for(Field* marble : fields){
+                if(marble->player == player)
+                    player_marbles++;
+                else if(marble->player != 0)
+                    opponent_marbles++;
+            }
+            //cout << "me=" << player_marbles << " and my bro=" << opponent_marbles << endl;
+            return player_marbles - opponent_marbles;
+        }
+
+        int distance_from_center_balance(int player){
             int center = 40;
             int specific_fields_rate_1[] = {11,12,23,33,52,61,68,69,47,57,19,28};
             int specific_fields_rate_2[] = {21,32,51,59,48,29};
@@ -226,9 +212,10 @@ class Board{
             
 
             int player_points = 0;
+            int opponent_points = 0;
 
             for(Field* marble : fields){
-                if(marble->player != player)
+                if(marble->player == 0)
                     continue;
                 //cout << "kula player id=" << marble->id << endl;
 
@@ -237,19 +224,28 @@ class Board{
                     continue;
                 }
                 if(find(begin(specific_fields_rate_1), end(specific_fields_rate_1), marble->id) != end(specific_fields_rate_1)){
-                    player_points += 1;
+                    if(marble->player == player)
+                        player_points++;
+                    else
+                        opponent_points++;
                     //cout << "dla id=" << marble->id << " dodajemy punkty=" << 1 << endl;
                     continue;
                 }
 
                 if(find(begin(specific_fields_rate_2), end(specific_fields_rate_2), marble->id) != end(specific_fields_rate_2)){
-                    player_points += 2;
+                    if(marble->player == player)
+                        player_points += 2;
+                    else
+                        opponent_points += 2;
                     //cout << "dla id=" << marble->id << " dodajemy punkty=" << 2 << endl;
                     continue;
                 }
                 
                 if(marble->id == center){
-                    player_points += 5;
+                    if(marble->player == player)
+                        player_points += 4;
+                    else
+                        opponent_points += 4;
                     //cout << "dla id=" << marble->id << " dodajemy punkty=" << 5 << endl;
                     continue;
                 }
@@ -257,7 +253,10 @@ class Board{
                 for(int dir: {-1, 1, -10, 10, -9, 9}){
                     for(int i : {1, 2, 3, 4}){
                         if(center + dir*i == marble->id){
-                            player_points += (4 - i);
+                            if(marble->player == player)
+                                player_points += (4 - i);
+                            else
+                                opponent_points += (4 - i);
                             //cout << "dla id=" << marble->id << " dodajemy punkty=" << 4-i << endl; 
                             continue;
                         }
@@ -267,7 +266,8 @@ class Board{
 
                 
             }
-            return player_points;
+            //cout << "play=" << player_points << " oppo=" << opponent_points << endl;
+            return player_points - opponent_points;
 
         }
 
