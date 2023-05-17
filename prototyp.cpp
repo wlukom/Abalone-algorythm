@@ -58,18 +58,10 @@ int changePlayer(int player){
 }
 
 void createChild(Path* path, Board board){
-    if(path->depth == 0){
-        //cout << " depth == 0 FINAL" << endl;
-        return;
-    }
+    if(path->depth == 0)
+        return; // if createChild get initially depth==0
 
-    list<Movement*> moves = board.generate_movements(path->player);
-    if(moves.empty()){
-        cout << "MOVES ARE EMPTY !!!!!!!" << endl;
-        return;
-    }
-
-    for(Movement* m : moves){
+    for(Movement* m : board.generate_movements(path->player)){
         int current_depth = path->depth - 1;
 
         Path* child = new Path(m, current_depth, changePlayer(path->player));
@@ -80,8 +72,16 @@ void createChild(Path* path, Board board){
         b.updateMovement(m);
         //b.print();
 
+        if(current_depth > 0){
+            createChild(child, b);
+        }
+        else{
+            //m->setRate(b.rate(initial_board, path->player));
+            ;
+        }
+
     
-        createChild(child, b);
+        
         path->addChild(child);
 
     }
@@ -109,13 +109,32 @@ int counting_final_children(Path* node) {
     }
 }
 
+// int rating_movements(Path* node, Board board) {
+//     if (node->children.empty()){
+//         Board b = Board(board.fields);
+//         node->setRate(b.rate());
+//     }
+        
+//     else{
+//         for (Path* child : node->children){
+//             Board b = Board(board.fields);
+//             b.updateMovement(child);
+
+//             child->setRate(rating_movements(child, b));
+//         }
+//     }
+// }
+Board initial_board = Board();
 
 int main(){
     int depth = 2;
     int player = 2;
 
+    initial_board.rate(Board(), 2);
+    exit(0);
+
     // create board
-    Board initial_board = Board();
+    // Board initial_board = Board();
 
     // create paths
     Path* root_node = new Path(depth, player);
