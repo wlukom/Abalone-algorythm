@@ -9,7 +9,7 @@ using namespace std;
 class Movement{
     public:
 
-        list<Field*> board;
+        //list<Field*> board;
 
         Field* from_field;
         int player = 0;
@@ -73,10 +73,10 @@ class Movement{
         //     cout << "Ruch z id:" << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
         // }
         void print(){
-            cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
+            cout << "Movement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
             return;
-            if(this->board.empty())
-                cout << "\tMovemnt NULL" << endl;
+            // if(this->board.empty())
+            //     cout << "\tMovemnt NULL" << endl;
             //this->from_field->print();
             // else{
             //     cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
@@ -130,8 +130,6 @@ class Movement{
         }
 
 
-        void setRate(){ // -2 -1 0 1 2 
-
             /* RODZAJE STRATEGII */
 
         
@@ -183,5 +181,4 @@ class Movement{
 
             */
 
-        }
 };

@@ -13,7 +13,6 @@ class Path{
         int value;
         int depth;
         int player;
-        
         Movement* movement;
         list<Path*> children;
 
@@ -43,7 +42,6 @@ class Path{
         }
 
         void print(){
-            cout << "\tmovement=" << endl;
             this->movement->print();
             cout << "\tilosc dzieci=" << this->children.size() << endl;
         }

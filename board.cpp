@@ -110,7 +110,7 @@ class Board{
 
 
             // NUMBER OF MARBLES
-            cout << " ** NUMBER OF MARBLES **" << endl;
+            //cout << " ** NUMBER OF MARBLES **" << endl;
 
 
             int prev_marbles_balance = this->marbles_balance(player);
@@ -125,7 +125,7 @@ class Board{
 
 
             // DISTNACE FROM THE CENTER
-            cout << " ** DISTANCE FROM THE CENTER **" << endl;
+            //cout << " ** DISTANCE FROM THE CENTER **" << endl;
 
             int prev_balance_points = initial_board.distance_from_center_balance(player);
             int current_balance_points = this->distance_from_center_balance(player);
@@ -133,62 +133,14 @@ class Board{
 
             int points_balance = current_balance_points - prev_balance_points;
 
-            if(abs(points_balance) > 2){ // gdy bedzie roznica 2
+            if(abs(points_balance) > 1){ // gdy bedzie roznica 2
                 if(points_balance)
                     return 1;
                 else
                     return -1;
             }
+            return 0;
         
-
-        
-        //        PRZECIWNIK BLISKO
-        // - wypchniecie kuli przeciwnika najbardziej punktowane
-        /*
-            if(this->marblesDifference > 0){
-                this->rate = 2;
-                return;
-            }
-            if(this->marblesDifference < 0){
-                this->rate = -2;
-                return;
-            }
-            this->rate = 0;
-        */
-        // - podchodzimy blizej starajac sie miec 3 kule w rzędzie
-        // - sprawdzamy czy mozemy przepchnąć kolumne przeciwnika
-
-
-        
-            
-            /*
-                PRZECIWNIK DALEKO (rozpoczecie gry)
-
-            - kierunek do środka planszy (pole 40)
-            - jak najwiecej sasiadow tego samego koloru
-            
-            */
-
-        /*
-                PRZECIWNIK DALEKO (idzie skrzydlem)
-
-            - kierunek do środka planszy (pole 40)
-            - przygotowujemy sie na atak z boku
-                - wiecej kul dajemy z przeciwnej strony
-            - jak najwiecej sasiadow tego samego koloru
-        
-        */
-
-            /*
-                PRZECIWNIK BLISKO (odleglosc 2 kule od naszej)
-
-            - sprawdzamy zagrozenie:
-                    - ilosc kul przeciwnika vs nasze
-                    - czy wypchnie nasze kule za plansze
-                    - czy mozemy rozwalic jego atakujacy szyk (z boku)
-            - korygujemy nasze ustawienie
-
-            */
         }
 
         int marbles_balance(int player){
