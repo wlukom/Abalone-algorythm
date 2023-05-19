@@ -1,6 +1,7 @@
 
 #include<iostream>
 #include<fstream>
+#include <iterator>
 
 
 #include <iostream>
@@ -17,51 +18,46 @@
 
 using namespace std;
 
+int started_player = 2;
 
-// Movement* selectMovement(list<Movement*> movements){
-//     int theBestRate = -3;
-//     list<Movement*> theBestMovements;
-//     for(Movement* m : movements){
-
-//         m->setRate();
-//         if(m->rate > theBestRate){
-//             theBestMovements.clear();
-//             theBestMovements.push_back(m);
-//             theBestRate = m->rate;
-//         }
-//         else if(m->rate == theBestRate)
-//             theBestMovements.push_back(m);
-
-//         m->print();
-//         printBoard(m->board);
-//     }
-//     // movement drawing
-//     int randNumber = int(rand() % theBestMovements.size());
-//     cout << "Rand number=" << randNumber << " a lista ma size=" << theBestMovements.size() << endl;;
-//     list<Movement*>::iterator it = theBestMovements.begin();
-//     advance(it, randNumber);
-//     return *it;
-//     //return theBestMovements[randNumber];
+Board initial_board = Board();
+initial_board_evaluation rating_initial_board = {
+    initial_board.get_marbles_balance(started_player),
+    initial_board.distance_from_center_balance(started_player),
+    initial_board.marbles_neighborhood_balance(started_player)
+};
 
 
-//     // int counter = 0;
-//     // for(Movement* m : theBestMovements){
-//     //     if(counter == randNumber)
-//     //         return m;
-//     //     counter++;
-//     // }
-// }
+
+Movement* getTheBestMovement(Path* path){
+    list<Movement*> good_movements;
+    int the_highest_rate = -2;
+
+    for(Path* p : path->children){
+        if(p->movement->rate > the_highest_rate){
+            the_highest_rate = p->movement->rate;
+            good_movements.clear();
+            good_movements.push_back(p->movement);
+        }
+        else if(p->movement->rate == the_highest_rate){
+            good_movements.push_back(p->movement);
+        }
+    }
+    int number_of_the_best_movement = rand() % good_movements.size();
+    cout << "ilosc dobrych ruchow=" << good_movements.size() << endl;
+    //list<Movement*>::iterator it = good_movements.begin();
+    return *(next(good_movements.begin(), number_of_the_best_movement));
+}
 int changePlayer(int player){
     if(player == 2) 
         return 1;
     return 2;
 }
-Board initial_board = Board();
-int started_player = 2;
+
 
 int alfabeta(Path* path, Board board, int alfa, int beta){
     if(path->depth == 1)
-        return board.rate(initial_board, path->player);
+        return board.rate(rating_initial_board, path->player);
 
     if(path->player != started_player){
         for(Movement* m : board.generate_movements(path->player)){
@@ -137,11 +133,18 @@ void printTree(Path* node) {
     }
 }
 
+
+
 int main(){
+    exit(0);
+    // DODAC SYSTEM OCENY: BYCIE W GRUPIE, ATAKOWANIE ZBIOROWE
+    //I SPRAWDZIC TO
+
     int depth = 4; // nieparzyste
     //int started_player = 2;
 
     Path* root_node = new Path(depth, started_player);
+    
     
     alfabeta(root_node, initial_board, -10, 10);
     root_node->printChildren();
@@ -149,5 +152,7 @@ int main(){
     // create paths
 
     cout << "suma dzieci=" << counting_final_children(root_node) << endl;
+    Movement* m = getTheBestMovement(root_node);
+    m->print();
     //printTree(root_node);
 }

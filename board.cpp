@@ -7,10 +7,18 @@
 
 #include "movement.cpp"
 
+struct initial_board_evaluation{
+    int initial_marbles_balance;
+    int initial_distance_from_center_balance;
+    int initial_marbles_neighborhood_balance;
+
+};
+
 
 int offTheBoard[] = {5,6,7,8,15,16,17,25,26,35,45,54,55,63,64,65,72,73,74,75};
 
 class Board{
+    int directions[6] = {-1, 1, -10, 10, -9, 9};
     public:
         list<Field*> fields;
 
@@ -103,8 +111,8 @@ class Board{
             }
             return;
         }
-        int rate(Board initial_board, int player){
-
+        //int rate(Board initial_board, int player){
+        int rate(initial_board_evaluation initial_board, int player){
 
                 /* RODZAJE STRATEGII */
 
@@ -113,8 +121,8 @@ class Board{
             //cout << " ** NUMBER OF MARBLES **" << endl;
 
 
-            int prev_marbles_balance = this->marbles_balance(player);
-            int current_marbles_balance = initial_board.marbles_balance(player);
+            int prev_marbles_balance = initial_board.initial_marbles_balance;
+            int current_marbles_balance = this->get_marbles_balance(player);
             // cout << "count1=" << prev_marbles_balance << endl;
             // cout << "count2=" << current_marbles_balance << endl;
 
@@ -127,23 +135,66 @@ class Board{
             // DISTNACE FROM THE CENTER
             //cout << " ** DISTANCE FROM THE CENTER **" << endl;
 
-            int prev_balance_points = initial_board.distance_from_center_balance(player);
-            int current_balance_points = this->distance_from_center_balance(player);
-            
+            int prev_center = initial_board.initial_distance_from_center_balance;
+            int current_center = this->distance_from_center_balance(player);
+            int center_balance = current_center - prev_center;
 
-            int points_balance = current_balance_points - prev_balance_points;
-
-            if(abs(points_balance) > 1){ // gdy bedzie roznica 2
-                if(points_balance)
+            if(abs(center_balance) > 2){ // gdy bedzie roznica 2
+                if(center_balance)
                     return 1;
                 else
                     return -1;
             }
+
+            // trzymanie sie w grupie
+            int prev_grouping = initial_board.initial_marbles_neighborhood_balance;
+            int current_grouping = marbles_neighborhood_balance(player);
+            int grouping_balance = current_grouping - prev_grouping;
+
+            if(abs(grouping_balance) > 10){
+                if(grouping_balance)
+                    return 1;
+                else
+                    return -1;
+            }
+            // Attacking by group
+
             return 0;
         
         }
+        int marbles_neighborhood_balance(int player){
+            int player_points = 0;
+            int opponent_points = 0;
 
-        int marbles_balance(int player){
+            for(Field* marble : fields){
+                if(marble->player == player){
+                    for(int dir : this->directions){
+                        Field* neighborn = getField(marble->id + dir);
+                        if(neighborn != nullptr && neighborn->player == player){
+                            player_points++;
+                        }
+                    }
+                }
+                else if(marble->player != 0){
+                    for(int dir : this->directions){
+                        Field* neighborn = getField(marble->id + dir);
+                        if(neighborn != nullptr && neighborn->player == oppositePlayer(player)){
+                            opponent_points++;
+                        }
+                    }
+                }
+            }
+            return player_points - opponent_points;
+        }
+        Field* getField(int id){
+            for(Field* marble : fields){
+                if(marble->id == id)
+                    return marble;
+            }
+            return nullptr;
+        }
+
+        int get_marbles_balance(int player){
             int player_marbles = 0;
             int opponent_marbles = 0;
             for(Field* marble : fields){
