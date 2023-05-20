@@ -21,17 +21,10 @@ using namespace std;
 int started_player = 2;
 
 Board initial_board = Board();
-initial_board_evaluation rating_initial_board = {
-    initial_board.get_marbles_balance(started_player),
-    initial_board.distance_from_center_balance(started_player),
-    initial_board.marbles_neighborhood_balance(started_player)
-};
-
-
 
 Movement* getTheBestMovement(Path* path){
     list<Movement*> good_movements;
-    int the_highest_rate = -2;
+    float the_highest_rate = 0;
 
     for(Path* p : path->children){
         if(p->movement->rate > the_highest_rate){
@@ -43,10 +36,15 @@ Movement* getTheBestMovement(Path* path){
             good_movements.push_back(p->movement);
         }
     }
-    int number_of_the_best_movement = rand() % good_movements.size();
+    srand ( time(NULL) );
+    int rand_number = rand() % good_movements.size();
     cout << "ilosc dobrych ruchow=" << good_movements.size() << endl;
-    //list<Movement*>::iterator it = good_movements.begin();
-    return *(next(good_movements.begin(), number_of_the_best_movement));
+
+    for(Movement* m : good_movements){
+        m->print();
+    }
+    cout << "KONIeC" << endl;
+    return *(next(good_movements.begin(), rand_number));
 }
 int changePlayer(int player){
     if(player == 2) 
@@ -55,10 +53,11 @@ int changePlayer(int player){
 }
 
 
-int alfabeta(Path* path, Board board, int alfa, int beta){
-    if(path->depth == 1)
-        return board.rate(rating_initial_board, path->player);
-
+float alfabeta(Path* path, Board board, float alfa, float beta){
+    if(path->depth == 0){
+        board.print();
+        return board.rate(changePlayer(path->player));
+    }
     if(path->player != started_player){
         for(Movement* m : board.generate_movements(path->player)){
 
@@ -67,10 +66,11 @@ int alfabeta(Path* path, Board board, int alfa, int beta){
 
             Board b = Board(board.fields);
             b.updateMovement(m);
-            
 
-            beta = min(beta, alfabeta(child, b, alfa, beta));
-            m->setRate(beta);
+            float rate = alfabeta(child, b, alfa, beta);
+            m->setRate(rate);   
+            
+            beta = min(beta, rate);
 
             if(alfa >= beta)
                 break;
@@ -86,8 +86,11 @@ int alfabeta(Path* path, Board board, int alfa, int beta){
             Board b = Board(board.fields);
             b.updateMovement(m);
 
-            alfa = max(alfa, alfabeta(child, b, alfa, beta));
-            m->setRate(alfa);
+            float rate = alfabeta(child, b, alfa, beta);
+            m->setRate(rate);   
+
+            alfa = max(alfa, rate);
+            
             if(alfa >= beta)
                 break;
         }
@@ -136,17 +139,19 @@ void printTree(Path* node) {
 
 
 int main(){
-    exit(0);
-    // DODAC SYSTEM OCENY: BYCIE W GRUPIE, ATAKOWANIE ZBIOROWE
-    //I SPRAWDZIC TO
+    // initial_board.rate(rating_initial_board, started_player);
+    // initial_board.print();
+    // exit(0);
 
-    int depth = 4; // nieparzyste
+    int depth = 1; // min 2 ///nieparzyste
     //int started_player = 2;
 
     Path* root_node = new Path(depth, started_player);
     
     
-    alfabeta(root_node, initial_board, -10, 10);
+    float x = alfabeta(root_node, initial_board, 0, 10);
+    cout << "OCENA=" << x << endl;
+    //exit(0);
     root_node->printChildren();
     //cout << "x=" << x;
     // create paths
@@ -154,5 +159,8 @@ int main(){
     cout << "suma dzieci=" << counting_final_children(root_node) << endl;
     Movement* m = getTheBestMovement(root_node);
     m->print();
+    initial_board.updateMovement(m);
+    // initial_board.printRating(started_player);
+    initial_board.print();
     //printTree(root_node);
 }

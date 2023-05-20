@@ -1,30 +1,25 @@
 #include <list>
 #include <algorithm>
 #include <iterator>
+#include <vector>
 
 #include <windows.h>
 
 
 #include "movement.cpp"
 
-struct initial_board_evaluation{
-    int initial_marbles_balance;
-    int initial_distance_from_center_balance;
-    int initial_marbles_neighborhood_balance;
-
-};
-
-
 int offTheBoard[] = {5,6,7,8,15,16,17,25,26,35,45,54,55,63,64,65,72,73,74,75};
 
 class Board{
-    int directions[6] = {-1, 1, -10, 10, -9, 9};
+    vector<int> directions = {10, 1, -9, -10, -1, 9};
     public:
         list<Field*> fields;
 
         Board(){
             int fieldsPlayer1[] = {27,36,37,38,46,47,48,56,57,58,66,67,76,77};
             int fieldsPlayer2[] = {3,4,13,14,22,23,24,32,33,34,42,43,44,53};
+            // int fieldsPlayer1[] = {27,36,37,38,46,47,48,49,56,57,58,66,67,77};
+            // int fieldsPlayer2[] = {3,4,13,14,22,23,24,31,32,33,42,43,44,53};
 
             int offTheBoardSize = sizeof(offTheBoard)/sizeof(offTheBoard[0]);
             int fieldsPlayer1Size = sizeof(fieldsPlayer1)/sizeof(fieldsPlayer1[0]);
@@ -112,55 +107,53 @@ class Board{
             return;
         }
         //int rate(Board initial_board, int player){
-        int rate(initial_board_evaluation initial_board, int player){
-
-                /* RODZAJE STRATEGII */
-
+        float rate(int player){
+            //cout << "player=" << player << endl;
+            float score = 5;
 
             // NUMBER OF MARBLES
-            //cout << " ** NUMBER OF MARBLES **" << endl;
+            score += getCountMarbles(player) * 1.0;
+            score -= getCountMarbles(oppositePlayer(player)) * 1.0;
+            
+            //cout << "\t MARBLES BALANCE=" << score << endl;
 
 
-            int prev_marbles_balance = initial_board.initial_marbles_balance;
-            int current_marbles_balance = this->get_marbles_balance(player);
-            // cout << "count1=" << prev_marbles_balance << endl;
-            // cout << "count2=" << current_marbles_balance << endl;
 
-            if(prev_marbles_balance > current_marbles_balance)
-                return 2;
-            if(prev_marbles_balance < current_marbles_balance)
-                return -2;
+            // DISTANCE FROM THE CENTER
+            int d = summary_distance_from_center(player);
 
+            score -= d * 0.01;
+            //cout << "\t DISTANCE=" << d << endl;
+            cout << "\t DISTANCE=" << score << endl;
+            return score;
 
-            // DISTNACE FROM THE CENTER
-            //cout << " ** DISTANCE FROM THE CENTER **" << endl;
+            // }
+            //         // WARTOSC BEZWZGLEDNA Z BALANCE            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // // GROUPING
+            // int prev_grouping = initial_board.initial_marbles_neighborhood_balance;
+            // int current_grouping = marbles_neighborhood_balance(player);
 
-            int prev_center = initial_board.initial_distance_from_center_balance;
-            int current_center = this->distance_from_center_balance(player);
-            int center_balance = current_center - prev_center;
-
-            if(abs(center_balance) > 2){ // gdy bedzie roznica 2
-                if(center_balance)
-                    return 1;
-                else
-                    return -1;
-            }
-
-            // trzymanie sie w grupie
-            int prev_grouping = initial_board.initial_marbles_neighborhood_balance;
-            int current_grouping = marbles_neighborhood_balance(player);
-            int grouping_balance = current_grouping - prev_grouping;
-
-            if(abs(grouping_balance) > 10){
-                if(grouping_balance)
-                    return 1;
-                else
-                    return -1;
-            }
+            // int grouping_balance = current_grouping - prev_grouping;
+            // cout << "\t GROUP BALANCE=" << grouping_balance<< endl;
+            // if(abs(grouping_balance) > 5){
+            //     if(grouping_balance)
+            //         return grouping_balance;
+            //     else
+            //         return 2;
+            // }
             // Attacking by group
 
-            return 0;
+            return score;
         
+        }
+        int getCountMarbles(int player){
+            int points = 0;
+            for(Field* marble : fields){
+                if(marble->player == player){
+                    points++;
+                }
+            }
+            return points;
         }
         int marbles_neighborhood_balance(int player){
             int player_points = 0;
@@ -207,72 +200,65 @@ class Board{
             return player_marbles - opponent_marbles;
         }
 
-        int distance_from_center_balance(int player){
-            int center = 40;
-            int specific_fields_rate_1[] = {11,12,23,33,52,61,68,69,47,57,19,28};
-            int specific_fields_rate_2[] = {21,32,51,59,48,29};
-            int useless_fields[] = {0,1,2,3,4,14,24,34,44,53,62,71,80,79,78,77,76,66,56,46,36,27,18,9};
+
+        int summary_distance_from_center(int player){
+            int const center = 40;
+            int const max_distance = 4;
+            int summary_distance = 0;
+            vector<int> marbles_ids = get_marbles_ids(player);
             
-
-            int player_points = 0;
-            int opponent_points = 0;
-
-            for(Field* marble : fields){
-                if(marble->player == 0)
-                    continue;
-                //cout << "kula player id=" << marble->id << endl;
-
-                if(find(begin(useless_fields), end(useless_fields), marble->id) != end(useless_fields)){
-                    //cout << "jest bezuyteczna" << endl;
-                    continue;
-                }
-                if(find(begin(specific_fields_rate_1), end(specific_fields_rate_1), marble->id) != end(specific_fields_rate_1)){
-                    if(marble->player == player)
-                        player_points++;
-                    else
-                        opponent_points++;
-                    //cout << "dla id=" << marble->id << " dodajemy punkty=" << 1 << endl;
-                    continue;
-                }
-
-                if(find(begin(specific_fields_rate_2), end(specific_fields_rate_2), marble->id) != end(specific_fields_rate_2)){
-                    if(marble->player == player)
-                        player_points += 2;
-                    else
-                        opponent_points += 2;
-                    //cout << "dla id=" << marble->id << " dodajemy punkty=" << 2 << endl;
-                    continue;
-                }
-                
-                if(marble->id == center){
-                    if(marble->player == player)
-                        player_points += 4;
-                    else
-                        opponent_points += 4;
-                    //cout << "dla id=" << marble->id << " dodajemy punkty=" << 5 << endl;
-                    continue;
-                }
-
-                for(int dir: {-1, 1, -10, 10, -9, 9}){
-                    for(int i : {1, 2, 3, 4}){
-                        if(center + dir*i == marble->id){
-                            if(marble->player == player)
-                                player_points += (4 - i);
-                            else
-                                opponent_points += (4 - i);
-                            //cout << "dla id=" << marble->id << " dodajemy punkty=" << 4-i << endl; 
-                            continue;
-                        }
-                            
+            for(int distance = 1; distance <= max_distance; distance++){
+                vector<int> neighbors_ids = get_neighbors_ids(center, distance);
+                for(int marble_id : marbles_ids){
+                    if(list_contains_element(neighbors_ids, marble_id)){
+                        //cout << "dla marble=" << marble_id << " distance=" << distance << endl;
+                        summary_distance += distance;
                     }
                 }
-
-                
             }
-            //cout << "play=" << player_points << " oppo=" << opponent_points << endl;
-            return player_points - opponent_points;
-
+            return summary_distance;
         }
+        bool list_contains_element(vector<int> l, int element) const{
+            if(find(begin(l), end(l), element) != end(l))
+                return true;
+            return false;
+        }
+        vector<int> get_neighbors_ids(int field_id, int distance = 1){
+            vector<int> neighbors_ids;
+            vector<int> basic_neighbors_ids;
+            for(int dir : this->directions){
+                int neighbor_id = field_id + (dir * distance);
+                basic_neighbors_ids.push_back(neighbor_id);
+
+            }
+            
+            for(int i = 0; i < this->directions.size(); i++){
+                int begin_neighbor_id = basic_neighbors_ids.at(i);
+                int end_neighbor_id = basic_neighbors_ids.at((i+1) % directions.size());
+
+                int direction = directions.at((i+2)% directions.size());
+
+                for(
+                    int neighbor_id = begin_neighbor_id + direction; 
+                    end_neighbor_id != neighbor_id; 
+                    neighbor_id += direction)
+                    {
+                    neighbors_ids.push_back(neighbor_id);
+                }
+            }
+            neighbors_ids.insert(neighbors_ids.end(), basic_neighbors_ids.begin(), basic_neighbors_ids.end());
+            return neighbors_ids;
+        }   
+        vector<int> get_marbles_ids(int player){
+            vector<int> marbles_ids;
+            for(Field* marble : fields){
+                if(marble->player == player)
+                    marbles_ids.push_back(marble->id);
+            }
+            return marbles_ids;
+        }
+
+
 
         list<Movement*> generate_movements(int currentPlayer){ //player 1,2
 
@@ -283,9 +269,7 @@ class Board{
                     //m->print();
                     movements.push_back(m);
                 }
-                    
             }
-
             return movements;
         }
 

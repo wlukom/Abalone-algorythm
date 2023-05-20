@@ -16,19 +16,18 @@ class Movement{
         int marblesDifference;
         int direction;
         int myMarblesPushed;
-        int rate; // -2 1 0 1 2
+        float rate; // 0-10
 
 
         Movement(){
             this->from_field = new Field(-1, -1);
             this->direction = 0;
         }
-        Movement(list<Field*> board_before_movement, Field* from, int direction, int marblesDiference = 0, int rate=0){
+        Movement(list<Field*> board_before_movement, Field* from, int direction, int marblesDiference = 0){
             this->player = from->player;
             this->from_field = from;
             this->direction = direction;
             this->marblesDifference = marblesDiference;
-            this->rate = rate;
 
             HANDLE console_color;
             console_color = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -38,7 +37,7 @@ class Movement{
             return "Movement z " + to_string(this->from_field->id) + " dir:" + to_string(this->direction) + " rate:" + to_string(this->rate);
         }
         
-        void setRate(int x)  {this->rate = x;};
+        void setRate(float x)  {this->rate = x;};
 
         int oppositePlayer(int p){
             if(p == 1)
@@ -73,15 +72,7 @@ class Movement{
         //     cout << "Ruch z id:" << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
         // }
         void print(){
-            cout << "Movement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
-            return;
-            // if(this->board.empty())
-            //     cout << "\tMovemnt NULL" << endl;
-            //this->from_field->print();
-            // else{
-            //     cout << "\tMovement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl;
-            // }
-            
+            cout << "Movement z " << this->from_field->id << " dir:" << this->direction << " rate:" << this->rate << endl; 
         }
         void printBoard(list<Field*> fields){
             HANDLE console_color;

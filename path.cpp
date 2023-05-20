@@ -49,7 +49,6 @@ class Path{
             cout << "--- Children:" << endl;
             for(Path* p : this->children){
                 p->print();
-                cout << endl;
             }
             cout << "--- Koniec:" << endl;
         }
