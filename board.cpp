@@ -16,6 +16,8 @@ class Board{
         list<Field*> fields;
 
         Board(){
+            // int fieldsPlayer1[] = {27,36,37,38,46,47,48,56,57,58,66,67,76,77};
+            // int fieldsPlayer2[] = {3,4,13,14,22,23,24,32,33,34,42,43,44,53};
             int fieldsPlayer1[] = {27,36,37,38,46,47,48,56,57,58,66,67,76,77};
             int fieldsPlayer2[] = {3,4,13,14,22,23,24,32,33,34,42,43,44,53};
             // int fieldsPlayer1[] = {27,36,37,38,46,47,48,49,56,57,58,66,67,77};
@@ -123,8 +125,8 @@ class Board{
             int d = summary_distance_from_center(player);
 
             score -= d * 0.01;
-            //cout << "\t DISTANCE=" << d << endl;
-            cout << "\t DISTANCE=" << score << endl;
+            cout << "\t DISTANCE=" << d << endl;
+            cout << "\tEND SCORE=" << score << endl;
             return score;
 
             // }
@@ -313,6 +315,7 @@ class Board{
                             //cout << " 2+0 end";
                             continue;
                         }  
+                        ///continue; ////////////////////////////////////////////// chwilowe ------------------------
                         Field* firstOut = findField(thirdField->id + direction);
                         // 2 + 1
                         if(thirdField->player != player){

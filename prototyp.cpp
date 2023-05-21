@@ -52,50 +52,41 @@ int changePlayer(int player){
     return 2;
 }
 
-
 float alfabeta(Path* path, Board board, float alfa, float beta){
     if(path->depth == 0){
         board.print();
-        return board.rate(changePlayer(path->player));
+        return board.rate(started_player);
     }
-    if(path->player != started_player){
-        for(Movement* m : board.generate_movements(path->player)){
 
-            Path* child = new Path(m, path->depth - 1, changePlayer(path->player));
-            path->addChild(child);
+    float forwarded_value = 20;
+    if(path->player == started_player)
+        forwarded_value = -10;
 
-            Board b = Board(board.fields);
-            b.updateMovement(m);
+    for(Movement* m : board.generate_movements(path->player)){
 
-            float rate = alfabeta(child, b, alfa, beta);
-            m->setRate(rate);   
-            
-            beta = min(beta, rate);
+        Path* child = new Path(m, path->depth - 1, changePlayer(path->player));
+        path->addChild(child);
 
-            if(alfa >= beta)
-                break;
+        Board b = Board(board.fields);
+        b.updateMovement(m);
+
+        float rate = alfabeta(child, b, alfa, beta);
+        m->setRate(rate);   
+        //cout << "ocena dla ruchu m =" << m->rate << endl;
+
+        if(path->player == started_player){
+            forwarded_value = max(forwarded_value, rate);
+            alfa = max(alfa, forwarded_value);
         }
-        return beta;
-    }
-    else{ // path->player == started_player
-        for(Movement* m : board.generate_movements(path->player)){
-
-            Path* child = new Path(m, path->depth - 1, changePlayer(path->player));
-            path->addChild(child);
-
-            Board b = Board(board.fields);
-            b.updateMovement(m);
-
-            float rate = alfabeta(child, b, alfa, beta);
-            m->setRate(rate);   
-
-            alfa = max(alfa, rate);
-            
-            if(alfa >= beta)
-                break;
+        else{
+            forwarded_value = min(forwarded_value, rate);
+            beta = min(beta, forwarded_value);
         }
-        return alfa;
+
+        if(alfa >= beta)
+            break;
     }
+    return forwarded_value;
 
 }
 
@@ -124,7 +115,7 @@ void printTree(Path* node) {
         return;
     }
 
-    for (int i = 1; i < node->depth; ++i) {
+    for (int i = 0; i < node->depth; ++i) {
         std::cout << "|  "; // Wcięcie dla lepszego wyglądu
     }
 
@@ -143,13 +134,13 @@ int main(){
     // initial_board.print();
     // exit(0);
 
-    int depth = 1; // min 2 ///nieparzyste
+    int depth = 1; // min 1 nieparzyste
     //int started_player = 2;
 
     Path* root_node = new Path(depth, started_player);
     
     
-    float x = alfabeta(root_node, initial_board, 0, 10);
+    float x = alfabeta(root_node, initial_board, -10, 20);
     cout << "OCENA=" << x << endl;
     //exit(0);
     root_node->printChildren();
