@@ -8,13 +8,17 @@
 using namespace std;
 
 class Path{
+
+    int depth;
+    int player;
+    Movement* movement;
+    list<Path*> children;
+
     public:
-        //int id;
-        int value;
-        int depth;
-        int player;
-        Movement* movement;
-        list<Path*> children;
+        // int depth;
+        // int player;
+        // Movement* movement;
+        // list<Path*> children;
 
         Path(){
             this->movement = new Movement();
@@ -22,7 +26,8 @@ class Path{
         Path(int depth, int player){
             this->depth = depth;
             this->player = player;
-            this->movement = new Movement();
+            // this->movement = new Movement();
+            this->movement = new Movement(player);
         }
         Path(Movement* movement){
             //movements.push_back(movement);
@@ -32,7 +37,14 @@ class Path{
             this->movement = movement;
             this->depth = depth;
             this->player = player;
+            //this->player = movement->getPlayer();
         }
+
+        int getDepth() { return this->depth; };
+        int getPlayer() { return this->movement->getPlayer();};//->player; };
+        Movement* getMovement() { return this->movement; };
+        list<Path*> getChildren() { return this->children; }; 
+
         string toString() {
             return this->movement->toString();
         }
