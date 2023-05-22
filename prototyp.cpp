@@ -32,7 +32,6 @@ class Algorithm{
             this->depth = depth;
             this->initial_board = Board(fields);
 
-            // root_node = new Path(depth, started_player);
             root_node = new Path(depth, changePlayer(started_player));
 
         }
@@ -64,15 +63,13 @@ class Algorithm{
 
             int child_player = changePlayer(path->getPlayer());
             float forwarded_value = 20;
-            // if(path->getPlayer() == started_player)  //
-            if(changePlayer(path->getPlayer()) == started_player)  //
+
+            if(child_player == started_player)
                 forwarded_value = -10;
 
-            // for(Movement* m : board.generate_movements(path->getPlayer())){ //
-            for(Movement* m : board.generate_movements(changePlayer(path->getPlayer()))){ //
+            for(Movement* m : board.generate_movements(child_player)){
 
-                // Path* child = new Path(m, path->getDepth() - 1, changePlayer(path->getPlayer())); //
-                Path* child = new Path(m, path->getDepth() - 1, path->getPlayer()); //
+                Path* child = new Path(m, path->getDepth() - 1);
                 path->addChild(child);
 
                 Board b = Board(board.fields);
@@ -80,10 +77,8 @@ class Algorithm{
 
                 float rate = alfabeta(child, b, alfa, beta);
                 m->setRate(rate);   
-                //cout << "ocena dla ruchu m =" << m->rate << endl;
 
-                // if(path->getPlayer() == started_player){ //
-                if(changePlayer(path->getPlayer()) == started_player){ //
+                if(child_player == started_player){
                     forwarded_value = max(forwarded_value, rate);
                     alfa = max(alfa, forwarded_value);
                 }
