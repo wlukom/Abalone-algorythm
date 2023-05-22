@@ -43,7 +43,10 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp",
-        "xthread": "cpp"
+        "xthread": "cpp",
+        "algorithm": "cpp",
+        "fstream": "cpp",
+        "xtime": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -46,56 +46,23 @@ class Board{
                 this->fields.push_back(new Field(f->id, f->player));
             }
         }
-        list<Field*> getFields(){
-            return fields;
-        }
 
         void updateMovement(Movement* movement){
             // this is from first Path in the tree
-            if(movement->direction == 0){
+            if(movement->getDirection() == 0){
                 return;
             }
+            int current_player = movement->getPlayer();
+            int opponent = oppositePlayer(current_player);       
 
-            //int initial_marbles_diff = countingMarblesDifference(initial_fields);
-            
+            Field* firstField = findField(movement->getFieldId());
+            Field* secField = findField(firstField->id + movement->getDirection());
 
-            Field* firstField = findField(movement->from_field->id);
-            Field* secField = findField(firstField->id + movement->direction);
-
-            //cout << firstField->id << " -> " << secField->id << endl;
-
-            //while(secField)
             firstField->player = 0;
 
-            while(!isNULL(secField) && secField->player == movement->player){
+            while(!isNULL(secField) && secField->player == current_player){
                 firstField = secField;
-                secField = findField(firstField->id + movement->direction);
-                //cout << "while: sec id=" << secField->id << endl;
-            }
-
-            // next field NULL
-            if(isNULL(secField)){
-                //cout << "Jest NULL (1)" << endl;
-                return;
-            }
-
-            // next field empty
-            if(secField->player == 0){
-                secField->player = movement->player;
-                //cout << "set player=" << secField->player << endl;
-                return;
-            }
-
-            firstField = secField;
-            firstField->player = movement->player;
-
-            secField = findField(firstField->id + movement->direction);
-
-            int opposite_player = oppositePlayer(movement->player);
-
-            while(!isNULL(secField) && secField->player == opposite_player){
-                firstField = secField;
-                secField = findField(firstField->id + movement->direction);
+                secField = findField(firstField->id + movement->getDirection());
             }
 
             // next field NULL
@@ -104,13 +71,33 @@ class Board{
 
             // next field empty
             if(secField->player == 0){
-                secField->player = opposite_player;
+                secField->player = current_player;
+                return;
             }
+
+            firstField = secField;
+            firstField->player = current_player;
+
+            secField = findField(firstField->id + movement->getDirection());
+
+            while(!isNULL(secField) && secField->player == opponent){
+                firstField = secField;
+                secField = findField(firstField->id + movement->getDirection());
+            }
+
+            // next field NULL
+            if(isNULL(secField))
+                return;
+
+            // next field empty
+            if(secField->player == 0)
+                secField->player = opponent;
+
             return;
         }
-        //int rate(Board initial_board, int player){
+
         float rate(int player){
-            //cout << "player=" << player << endl;
+
             float score = 5;
 
             // NUMBER OF MARBLES
@@ -125,29 +112,147 @@ class Board{
             int d = summary_distance_from_center(player);
 
             score -= d * 0.01;
-            cout << "\t DISTANCE=" << d << endl;
-            cout << "\tEND SCORE=" << score << endl;
-            return score;
+            // cout << "\t DISTANCE=" << d << endl;
+            // cout << "\tAFTER DISTANCE=" << score << endl;
 
-            // }
-            //         // WARTOSC BEZWZGLEDNA Z BALANCE            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             // // GROUPING
-            // int prev_grouping = initial_board.initial_marbles_neighborhood_balance;
-            // int current_grouping = marbles_neighborhood_balance(player);
+            int grouping = marbles_neighborhood_rate(player);
+            //cout << "\t GROUPING=" << grouping * 0.005 << endl;
+            score += grouping * 0.005;
 
-            // int grouping_balance = current_grouping - prev_grouping;
-            // cout << "\t GROUP BALANCE=" << grouping_balance<< endl;
-            // if(abs(grouping_balance) > 5){
-            //     if(grouping_balance)
-            //         return grouping_balance;
-            //     else
-            //         return 2;
-            // }
             // Attacking by group
 
             return score;
         
         }
+        // vector<vector<int>> board_vectors(vector<int> started_fields, int dir){
+
+        //     vector<vector<int>> root;
+
+        //     for(int field : started_fields){
+        //         int current_field = field;
+        //         vector<int> row;
+        //         while(getField(current_field) != nullptr){
+        //             row.push_back(current_field);
+        //             current_field += dir;
+        //         }
+        //         root.push_back(row);
+        //     }
+        //     return root;
+        // }
+        // int position_rating(int player){
+        //     vector<int> started_fields_for_9 = {0,1,2,3,4,14,24,34,44};
+        //     vector<int> started_fields_for_1 = {0,9,18,27,36,46,56,66,76};
+        //     vector<int> started_fields_for_10 = {0,9,18,27,36,1,2,3,4};
+
+        //     vector<vector<int>> rows_for_9 = board_vectors(started_fields_for_9, 9);
+        //     vector<vector<int>> rows_for_1 = board_vectors(started_fields_for_1, 1);
+        //     vector<vector<int>> rows_for_10 = board_vectors(started_fields_for_10, 10);
+
+        //     ;
+
+        // }
+        // int row_analysis(vector<vector)
+        // int najnaj(int player){
+        //     vector<int> all_player_marbles = get_marbles_ids(player);
+        //     vector<int> all_opponent_marbles = get_marbles_ids(opponent_marbles(player));
+
+        //     int score = 0;
+
+        //     for(int marble_id : all_player_marbles){
+        //         for(int dir : this->directions){
+        //             int count_opponent = 0;
+        //             for(int i = 1; i < 5; i++){
+        //                 int next_marble = marble_id + dir*i;
+        //                 if(list_contains_element(all_opponent_marbles, next_marble)){
+        //                     count_opponent++;
+        //                 }
+        //                 else if(count_opponent != 0)
+        //                     break;
+
+        //             }
+
+        //             if(count_opponent > 1){
+        //                 for(int i=1; i < count_opponent; i++){
+        //                     int next_marble = marble_id + (-dir)*i;
+        //                     if(!list_contains_element(all_player_marbles, next_marble))
+        //                         score 
+        //                 }
+
+
+        //             }
+        //         }
+        //     }
+
+
+        // }
+        // int najlepsza(int player){
+        //     vector<int> all_player_marbles = get_marbles_ids(player);
+        //     vector<int> all_opponent_marbles = get_marbles_ids(opponent_marbles(player));
+
+        //     vector<int, int> alredy_been;
+
+        //     for(int marble_id : all_player_marbles){
+        //         for(int dir : this->directions){
+        //             for(int i = 1; i <= 6; i++){
+        //                 Field* next_field = getField(marble_id + dir * i);
+        //                 if(next_field == nullptr)
+        //                     break;
+        //                 if(next_field->player == 0)
+        //                     ;
+        //             }
+
+        //         }
+        //     }
+        // }
+        // int counting_position(int course,  vector<int> all_player_marbles,  vector<int> all_player_marbles){
+
+        //     for(int i = 0; i <= 80; i += 10){
+        //         int players_marbles = 0;
+        //         int opponent_marbles = 0;
+                
+        //         for(int j = -4; j <= 4; j++){
+        //             int marble_id = i + j*(9);
+        //             if(list_contains_element(all_player_marbles, marble_id)){
+        //                 if(opponent_marbles == 0)
+        //                     players_marbles++;
+        //             }
+        //             else if(list_contains_element(all_opponent_marbles, marble_id)){
+        //                 opponent_marbles++;
+        //             }
+        //         }
+        //     }
+
+
+        // }
+        // int defense_and_attack(int player){
+        //     vector<int> all_player_marbles = get_marbles_ids(player);
+        //     vector<int> all_opponent_marbles = get_marbles_ids(opponent_marbles(player));
+        //     // only 3 direction
+        //     // /////////////
+        //     for(int marble_id : all_player_marbles){
+        //         for(int dir : this->direction){
+        //             ;
+        //         }
+        //     }
+        //     // -------------
+        //     // \\\\\\\\\\\\ //
+
+        //     for(int marble_id : all_player_marbles){
+        //         Field* marble = getField(marble_id);
+                
+        //         for(int dir : this->direction){
+        //             int marbles_player = 1;
+        //             int marbles_opponent = 0;
+        //             for(int distance = 0; distance < 5; distance++){
+
+        //                 ;
+        //             }
+                    
+        //         }
+        //     }
+        // }
+        // bool is
         int getCountMarbles(int player){
             int points = 0;
             for(Field* marble : fields){
@@ -157,30 +262,44 @@ class Board{
             }
             return points;
         }
-        int marbles_neighborhood_balance(int player){
-            int player_points = 0;
-            int opponent_points = 0;
+        
+        int marbles_neighborhood_rate(int player){
 
-            for(Field* marble : fields){
-                if(marble->player == player){
-                    for(int dir : this->directions){
-                        Field* neighborn = getField(marble->id + dir);
-                        if(neighborn != nullptr && neighborn->player == player){
-                            player_points++;
-                        }
-                    }
-                }
-                else if(marble->player != 0){
-                    for(int dir : this->directions){
-                        Field* neighborn = getField(marble->id + dir);
-                        if(neighborn != nullptr && neighborn->player == oppositePlayer(player)){
-                            opponent_points++;
-                        }
-                    }
+            vector<int> marbles_ids = get_marbles_ids(player);
+            int count_of_contacts = 0;
+
+            for(int marble_id : marbles_ids){
+                for(int neighbor_id : get_neighbors_ids(marble_id)){
+                    if(list_contains_element(marbles_ids, neighbor_id))
+                        count_of_contacts++;
                 }
             }
-            return player_points - opponent_points;
+            return count_of_contacts;
         }
+        // int marbles_neighborhood_balance(int player){
+        //     int player_points = 0;
+        //     int opponent_points = 0;
+
+        //     for(Field* marble : fields){
+        //         if(marble->player == player){
+        //             for(int dir : this->directions){
+        //                 Field* neighborn = getField(marble->id + dir);
+        //                 if(neighborn != nullptr && neighborn->player == player){
+        //                     player_points++;
+        //                 }
+        //             }
+        //         }
+        //         else if(marble->player != 0){
+        //             for(int dir : this->directions){
+        //                 Field* neighborn = getField(marble->id + dir);
+        //                 if(neighborn != nullptr && neighborn->player == oppositePlayer(player)){
+        //                     opponent_points++;
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     return player_points - opponent_points;
+        // }
         Field* getField(int id){
             for(Field* marble : fields){
                 if(marble->id == id)
@@ -298,7 +417,7 @@ class Board{
                         continue;
                     // 1 + 0
                     if(secField->player == 0){
-                        m.push_back(new Movement(this->fields, firstField, direction));
+                        m.push_back(new Movement(firstField, direction));
                         continue;
                     }
                     // 2
@@ -311,7 +430,7 @@ class Board{
                         // 2 + 0
                         else if(thirdField->player == 0){
                             //cout << " 2+0 "; 
-                            m.push_back(new Movement(this->fields, firstField, direction));
+                            m.push_back(new Movement(firstField, direction));
                             //cout << " 2+0 end";
                             continue;
                         }  
@@ -321,10 +440,10 @@ class Board{
                         if(thirdField->player != player){
                             // 2 + 1 + NULL
                             if(isNULL(firstOut))
-                                m.push_back(new Movement(this->fields, firstField, direction, 2));
+                                m.push_back(new Movement(firstField, direction));
                             // 2 + 1 + 0
                             else if(firstOut->player == 0)
-                                m.push_back(new Movement(this->fields, firstField, direction));
+                                m.push_back(new Movement(firstField, direction));
                             // 2 + 1 + 1 || 2 + 2
                             else
                                 continue;
@@ -336,7 +455,7 @@ class Board{
                                 continue;
                             // 3 + 0
                             else if(firstOut->player == 0)                    
-                                m.push_back(new Movement(this->fields, firstField, direction));
+                                m.push_back(new Movement(firstField, direction));
                             // 4  -wrong
                             else if(firstOut->player == player)
                                 continue;
@@ -345,23 +464,23 @@ class Board{
                                 Field* secOut = findField(firstOut->id + direction);
                                 // 3 + 1 + NULL
                                 if(isNULL(secOut))
-                                    m.push_back(new Movement(this->fields, firstField, direction, 2));
+                                    m.push_back(new Movement(firstField, direction));
                                 // 3 + 1 + 1  -wrong
                                 else if(secOut->player == player)
                                     continue; 
                                 // 3 + 1 + 0
                                 else if(secOut->player == 0)
-                                    m.push_back(new Movement(this->fields, firstField, direction));
+                                    m.push_back(new Movement(firstField, direction));
 
                                 // 3 + 2 opponent
                                 else{
                                     Field* thirdOut = findField(secOut->id + direction);
                                     // 3 + 2 + NULL
                                     if(isNULL(thirdOut))
-                                        m.push_back(new Movement(this->fields, firstField, direction, 2));
+                                        m.push_back(new Movement(firstField, direction));
                                     // 3 + 2 + 0
                                     else if(thirdOut->player == 0)
-                                        m.push_back(new Movement(this->fields, firstField, direction));
+                                        m.push_back(new Movement(firstField, direction));
                                     // 3 + 3 || 3 + 2 + 1
                                     else
                                         continue;
